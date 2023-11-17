@@ -49,7 +49,7 @@ FT_BEGIN_HEADER
    *   the context, these can represent distances in integer font units, or
    *   16.16, or 26.6 fixed-point pixel coordinates.
    */
-  typedef signed long  FT_Pos;
+  typedef signed int   FT_Pos; // XXX:
 
 
   /**************************************************************************

@@ -27,6 +27,9 @@
 #ifndef FTMISC_H_
 #define FTMISC_H_
 
+#ifndef FT_CONFIG_STANDARD_LIBRARY_H
+#define FT_CONFIG_STANDARD_LIBRARY_H <stdlib.h>
+#endif
 
   /* memset */
 #include FT_CONFIG_STANDARD_LIBRARY_H
@@ -90,6 +93,32 @@
   typedef int64_t  FT_Int64;
 
 #endif
+
+#define FT_EXPORT(x) x
+#define FT_EXPORT_DEF(x) x
+typedef signed int   FT_Fixed; // XXX:
+typedef uint32_t  FT_UInt32;
+typedef  int32_t  FT_Int32;
+
+  static FT_Long
+  FT_MulDiv( FT_Long  a,
+             FT_Long  b,
+             FT_Long  c )
+  {
+    FT_Int   s;
+    FT_Long  d;
+
+
+    s = 1;
+    if ( a < 0 ) { a = -a; s = -1; }
+    if ( b < 0 ) { b = -b; s = -s; }
+    if ( c < 0 ) { c = -c; s = -s; }
+
+    d = (FT_Long)( c > 0 ? ( (FT_Int64)a * b + ( c >> 1 ) ) / c
+                         : 0x7FFFFFFFL );
+
+    return ( s > 0 ) ? d : -d;
+  }
 
 
   static FT_Long

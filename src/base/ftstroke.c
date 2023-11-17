@@ -16,6 +16,7 @@
  */
 
 
+#ifndef STANDALONE_
 #include <freetype/ftstroke.h>
 #include <freetype/fttrigon.h>
 #include <freetype/ftoutln.h>
@@ -54,6 +55,87 @@
                                         : FT_STROKER_BORDER_RIGHT;
   }
 
+#else
+#include "ftmisc.h"
+#include "ftimage.h"
+#include "fttrigon.h"
+
+typedef struct { FT_Memory memory; }*  FT_Library;
+typedef unsigned char  FT_Bool;
+typedef signed short  FT_Short;
+typedef uint64_t  FT_UInt64;
+#define FT_Glyph  void
+
+#include "ftstroke.h"
+
+#define TRUE 1
+#define FALSE 0
+#define FT_Err_Ok 0
+#define FT_ASSERT(c)
+
+#define FT_THROW(e)  FT_Err_ ## e
+#define FT_Err_Invalid_Outline  0x14
+#define FT_Err_Invalid_Argument 0x06
+#define FT_Err_Invalid_Library_Handle 0x21
+
+#define FT_BOOL(x)  (FT_Bool)((x) != 0)
+#define NEG_LONG(a) (FT_Long)((FT_ULong)0 - (FT_ULong)(a))
+#define FT_MOVE_SIGN(x, x_unsigned, s) \
+    do { if (x < 0) { x_unsigned = 0U - (x_unsigned); s = -s; } } while (0)
+
+#include <string.h>
+#define FT_RENEW_ARRAY(ptr, cursz, newsz)  (ptr = realloc(ptr, newsz))
+#define FT_ARRAY_COPY(dest, source, count) memcpy(dest, source, count * sizeof(*(dest)))
+#define FT_NEW(ptr)  (ptr = malloc(sizeof(*ptr)))
+#define FT_FREE  free
+
+// from ftcalc.c
+/* documentation is in freetype.h */
+
+  FT_EXPORT_DEF( FT_Long )
+  FT_MulFix( FT_Long  a_,
+             FT_Long  b_ )
+  {
+#ifdef FT_MULFIX_ASSEMBLER
+
+    return FT_MULFIX_ASSEMBLER( (FT_Int32)a_, (FT_Int32)b_ );
+
+#else
+
+    FT_Int64  ab = (FT_Int64)a_ * (FT_Int64)b_;
+
+    /* this requires arithmetic right shift of signed numbers */
+    return (FT_Long)( ( ab + 0x8000L - ( ab < 0 ) ) >> 16 );
+
+#endif /* FT_MULFIX_ASSEMBLER */
+  }
+
+
+  /* documentation is in freetype.h */
+
+  FT_EXPORT_DEF( FT_Long )
+  FT_DivFix( FT_Long  a_,
+             FT_Long  b_ )
+  {
+    FT_Int     s = 1;
+    FT_UInt64  a, b, q;
+    FT_Long    q_;
+
+
+    a = (FT_UInt64)a_;
+    b = (FT_UInt64)b_;
+
+    FT_MOVE_SIGN( a_, a, s );
+    FT_MOVE_SIGN( b_, b, s );
+
+    q = b > 0 ? ( ( a << 16 ) + ( b >> 1 ) ) / b
+              : 0x7FFFFFFFUL;
+
+    q_ = (FT_Long)q;
+
+    return s < 0 ? NEG_LONG( q_ ) : q_;
+  }
+#endif
 
   /*************************************************************************/
   /*************************************************************************/
@@ -790,7 +872,7 @@
   FT_Stroker_New( FT_Library   library,
                   FT_Stroker  *astroker )
   {
-    FT_Error    error;           /* assigned in FT_NEW */
+    FT_Error    error = 0;           /* assigned in FT_NEW */
     FT_Memory   memory;
     FT_Stroker  stroker = NULL;
 
@@ -2242,6 +2324,7 @@
 
   /* documentation is in ftstroke.h */
 
+#ifndef STANDALONE_
   FT_EXPORT_DEF( FT_Error )
   FT_Glyph_Stroke( FT_Glyph    *pglyph,
                    FT_Stroker   stroker,
@@ -2398,6 +2481,7 @@
   Exit:
     return error;
   }
+#endif
 
 
 /* END */

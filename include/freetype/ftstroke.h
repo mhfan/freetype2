@@ -19,8 +19,10 @@
 #ifndef FTSTROKE_H_
 #define FTSTROKE_H_
 
+#ifndef STANDALONE_
 #include <freetype/ftoutln.h>
 #include <freetype/ftglyph.h>
+#endif
 
 
 FT_BEGIN_HEADER

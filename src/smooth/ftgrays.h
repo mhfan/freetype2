@@ -45,6 +45,7 @@
 #endif
 
   FT_EXPORT_VAR( const FT_Raster_Funcs )  ft_grays_raster;
+  FT_EXPORT_VAR( const FT_Raster_Funcs )  ft_standard_raster;
 
 
 #ifdef __cplusplus
