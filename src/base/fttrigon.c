@@ -29,9 +29,23 @@
    *
    */
 
+#ifndef STANDALONE_
 #include <freetype/internal/ftobjs.h>
 #include <freetype/internal/ftcalc.h>
 #include <freetype/fttrigon.h>
+#else
+#include "ftmisc.h"
+#include "ftimage.h"
+#include "fttrigon.h"
+
+#define FT_ABS(a)  ((a) < 0 ? -(a) : (a))
+#define FT_MSB(x)  (31 - __builtin_clz(x))
+
+#define FT_TYPEOF(type)
+#define FT_PAD_FLOOR(x, n)  ((x) & ~FT_TYPEOF(x)((n) - 1))
+#define FT_PAD_ROUND(x, n)  FT_PAD_FLOOR((x) + (n) / 2, n)
+extern FT_Long FT_DivFix(FT_Long  a_, FT_Long  b_); // already in ftstroke.c
+#endif
 
 
   /* the Cordic shrink factor 0.858785336480436 * 2^32 */
